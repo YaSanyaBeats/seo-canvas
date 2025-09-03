@@ -1,0 +1,89 @@
+// Заголовки, общие БЄМ блоки и проче...
+body {
+    background: linear-gradient(to bottom, #0C0707 70%, #270909 100%);
+    font-family: 'Inter', sans-serif;
+    color: white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: white;
+}
+
+a {
+    color: white;
+    transition: .2s;
+    &:hover, &:focus {
+        color: white;
+        opacity: .7;
+        text-decoration: none;
+    }
+}
+
+.social {
+    display: flex;
+    gap: 15px;
+    &__icon {}
+}
+
+.code {
+    background: #202020;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    &__header {
+        background: #191919;
+        border-bottom: 1px solid #252525;
+        padding: 15px 20px;
+        border-radius: 20px 20px 0 0;
+    }
+    &__title {}
+    &__body {
+        background: #191919;
+        border: 1px solid #252525;
+        margin: 15px 20px;
+        padding: 10px 15px;
+        border-radius: 10px;
+        position: relative;
+        cursor: pointer;
+        &:hover {
+            .code {
+                &__copy {
+                    opacity: .6;
+                }
+            }
+        }
+    }
+    &__text {
+        margin: 0;
+        font-size: 16px;
+        font-family: 'Inika';
+    }
+    &__copy {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        opacity: 0;
+        transition: .3s;
+        &:hover {
+            opacity: 1 !important;
+        }
+    }
+}
+
+main {
+    display: flex;
+    align-items: center;
+}
+
+.uk-notification {
+    width: 300px;
+    margin-left: -150px;
+}
+
+.uk-notification-message {
+    background-color: #191919;
+    color: white;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
+}

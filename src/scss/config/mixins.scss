@@ -1,0 +1,70 @@
+@use 'sass:math';
+
+// !media
+@mixin media($width) {
+    @media (max-width: #{$width + '.98' + px}) {
+        @content;
+    }
+}
+
+// !:not (last-child)
+@mixin notLast() {
+    &:not(:last-child) {
+        @content;
+    }
+}
+
+// !:not (first-child)
+@mixin notFirst() {
+    &:not(:first-child) {
+        @content;
+    }
+}
+
+@mixin any-hover() {
+    @media (any-hover: hover) {
+      &:hover {
+        @content;
+      }
+    }
+}
+
+@mixin off-scrollbar() {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+}
+
+
+@mixin fluid($min, $max, $prop) {
+    $addSize: $max - $min;
+    $maxWidth: $laptop - $minWidth;
+    #{$prop}: clamp(#{$min + 'px'}, calc(#{$min + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidth})), #{$max + 'px'});
+
+
+}
+
+@mixin fluid2($min1, $max1, $min2, $max2, $prop) {
+    $addSize1: $max1 - $min1;
+    $addSize2: $max2 - $min2;
+    $maxWidth: $laptop - $minWidth;
+    #{$prop}: 
+        clamp(#{$min1 + 'px'}, calc(#{$min1 + px} + #{$addSize1} * ((100vw - 320px) / #{$maxWidth})), #{$max1 + 'px'})
+        clamp(#{$min2 + 'px'}, calc(#{$min2 + px} + #{$addSize2} * ((100vw - 320px) / #{$maxWidth})), #{$max2 + 'px'});
+}
+
+@mixin fluid4($min1, $max1, $min2, $max2, $min3, $max3, $min4, $max4, $prop) {
+    $addSize1: $max1 - $min1;
+    $addSize2: $max2 - $min2;
+    $addSize3: $max3 - $min3;
+    $addSize4: $max4 - $min4;
+    $maxWidth: $laptop - $minWidth;
+    #{$prop}: 
+        clamp(#{$min1 + 'px'}, calc(#{$min1 + px} + #{$addSize1} * ((100vw - 320px) / #{$maxWidth})), #{$max1 + 'px'})
+        clamp(#{$min2 + 'px'}, calc(#{$min2 + px} + #{$addSize2} * ((100vw - 320px) / #{$maxWidth})), #{$max2 + 'px'})
+        clamp(#{$min3 + 'px'}, calc(#{$min3 + px} + #{$addSize3} * ((100vw - 320px) / #{$maxWidth})), #{$max3 + 'px'})
+        clamp(#{$min4 + 'px'}, calc(#{$min4 + px} + #{$addSize4} * ((100vw - 320px) / #{$maxWidth})), #{$max4 + 'px'});
+}
