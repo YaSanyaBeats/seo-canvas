@@ -1,0 +1,44 @@
+@keyframes cursor1 {
+    from {
+        transform: translate(1550px, 1176px);
+    }
+    33% {
+        transform: translate(1580px, 1176px);
+    }
+    66% {
+        transform: translate(1590px, 1146px);
+    }
+    to {
+        transform: translate(1550px, 1176px);
+    }
+}
+
+@keyframes cursor2 {
+    from {
+        transform: translate(2450px, 1270px);
+    }
+    33% {
+        transform: translate(2480px, 1270px);
+    }
+    66% {
+        transform: translate(2480px, 1230px);
+    }
+    to {
+        transform: translate(2450px, 1270px);
+    }
+}
+
+@keyframes cursor3 {
+    from {
+        transform: translate(2000px, 1560px);
+    }
+    33% {
+        transform: translate(2000px, 1580px);
+    }
+    66% {
+        transform: translate(2020px, 1560px);
+    }
+    to {
+        transform: translate(2000px, 1560px);
+    }
+}

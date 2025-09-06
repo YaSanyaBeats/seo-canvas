@@ -9,7 +9,7 @@ const js = () => {
   return gulp
     .src(filePaths.src.js, { sourcemaps: app.isDev })
     .pipe(plugins.handleError('JS'))
-    .pipe(webpack({ config: webpackConfig(app.isDev) }))
+    //.pipe(webpack({ config: webpackConfig(app.isDev) }))
     .pipe(gulp.dest(filePaths.build.js))
     .pipe(plugins.browserSync.stream());
 };

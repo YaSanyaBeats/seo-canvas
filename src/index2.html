@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Canvas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            background-color: #f0f0f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        #viewport {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: absolute;
+            width: 5000px;
+            height: 5000px;
+            background-color: #fff;
+            border: 2px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            background-image: 
+                linear-gradient(#ddd 1px, transparent 1px),
+                linear-gradient(90deg, #ddd 1px, transparent 1px);
+            background-size: 50px 50px;
+            will-change: transform;
+            transition: transform 0.15s ease-out;
+        }
+        
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .zoom-level {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #4338ca;
+        }
+        
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        #top-left { top: -10px; left: -10px; }
+        #top-right { top: -10px; right: -10px; }
+        #bottom-left { bottom: -10px; left: -10px; }
+        #bottom-right { bottom: -10px; right: -10px; }
+    </style>
+</head>
+<body>
+    <div id="viewport">
+        <div id="container">
+            <div class="corner" id="top-left"></div>
+            <div class="corner" id="top-right"></div>
+            <div class="corner" id="bottom-left"></div>
+            <div class="corner" id="bottom-right"></div>
+        </div>
+    </div>
+    
+    <div id="controls">
+        <div class="zoom-level">Zoom: <span id="zoom-value">100</span>%</div>
+        <button id="zoom-in">Zoom In</button>
+        <button id="zoom-out">Zoom Out</button>
+        <button id="reset">Reset</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('container');
+            const viewport = document.getElementById('viewport');
+            const zoomValue = document.getElementById('zoom-value');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const resetBtn = document.getElementById('reset');
+            
+            let scale = 1;
+            let posX = 0;
+            let posY = 0;
+            let velocityX = 0;
+            let velocityY = 0;
+            let isDragging = false;
+            let lastX, lastY;
+            let animationId;
+            let friction = 0.92;
+            let minScale = 0.1;
+            let maxScale = 5;
+            
+            // Initial position (centered)
+            const centerX = (viewport.clientWidth - container.clientWidth * scale) / 2;
+            const centerY = (viewport.clientHeight - container.clientHeight * scale) / 2;
+            posX = centerX;
+            posY = centerY;
+            updateTransform();
+            
+            // Mouse events
+            container.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('mouseleave', endDrag);
+            
+            // Touch events
+            container.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+            
+            // Wheel zoom
+            container.addEventListener('wheel', handleWheel, { passive: false });
+            
+            // Button events
+            zoomInBtn.addEventListener('click', () => zoom(1.2, viewport.clientWidth/2, viewport.clientHeight/2));
+            zoomOutBtn.addEventListener('click', () => zoom(0.8, viewport.clientWidth/2, viewport.clientHeight/2));
+            resetBtn.addEventListener('click', resetView);
+            
+            function updateTransform() {
+                container.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+                zoomValue.textContent = Math.round(scale * 100);
+            }
+            
+            function startDrag(e) {
+                isDragging = true;
+                lastX = e.clientX || e.touches[0].clientX;
+                lastY = e.clientY || e.touches[0].clientY;
+                e.preventDefault();
+                cancelAnimationFrame(animationId);
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                
+                if (clientX === undefined || clientY === undefined) return;
+                
+                const deltaX = clientX - lastX;
+                const deltaY = clientY - lastY;
+                
+                posX += deltaX;
+                posY += deltaY;
+                
+                // Store velocity for inertia
+                velocityX = deltaX * 0.5;
+                velocityY = deltaY * 0.5;
+                
+                lastX = clientX;
+                lastY = clientY;
+                
+                applyBoundaries();
+                updateTransform();
+                e.preventDefault();
+            }
+            
+            function endDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                animateInertia();
+            }
+            
+            function animateInertia() {
+                if (Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1) {
+                    velocityX = 0;
+                    velocityY = 0;
+                    return;
+                }
+                
+                posX += velocityX;
+                posY += velocityY;
+                
+                velocityX *= friction;
+                velocityY *= friction;
+                
+                applyBoundaries();
+                updateTransform();
+                
+                animationId = requestAnimationFrame(animateInertia);
+            }
+            
+            function applyBoundaries() {
+                const scaledWidth = container.clientWidth * scale;
+                const scaledHeight = container.clientHeight * scale;
+                
+                // Calculate boundaries
+                const maxX = (viewport.clientWidth - scaledWidth) / 2;
+                const maxY = (viewport.clientHeight - scaledHeight) / 2;
+                const minX = -scaledWidth + (viewport.clientWidth / 2);
+                const minY = -scaledHeight + (viewport.clientHeight / 2);
+                
+                // Apply elastic boundaries
+                if (posX > maxX) {
+                    posX = maxX + (posX - maxX) * 0.5;
+                    velocityX *= -0.3;
+                } else if (posX < minX) {
+                    posX = minX + (posX - minX) * 0.5;
+                    velocityX *= -0.3;
+                }
+                
+                if (posY > maxY) {
+                    posY = maxY + (posY - maxY) * 0.5;
+                    velocityY *= -0.3;
+                } else if (posY < minY) {
+                    posY = minY + (posY - minY) * 0.5;
+                    velocityY *= -0.3;
+                }
+            }
+            
+            function handleWheel(e) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                zoom(delta, e.clientX, e.clientY);
+            }
+            
+            function zoom(zoomFactor, clientX, clientY) {
+                const oldScale = scale;
+                scale *= zoomFactor;
+                
+                // Apply scale limits
+                if (scale < minScale) {
+                    scale = minScale;
+                    zoomFactor = minScale / oldScale;
+                } else if (scale > maxScale) {
+                    scale = maxScale;
+                    zoomFactor = maxScale / oldScale;
+                }
+                
+                if (scale === oldScale) return;
+                
+                // Calculate mouse position relative to container
+                const mouseX = clientX - posX;
+                const mouseY = clientY - posY;
+                
+                // Calculate new position to zoom toward mouse
+                posX -= (mouseX / oldScale) * (zoomFactor - 1) * oldScale;
+                posY -= (mouseY / oldScale) * (zoomFactor - 1) * oldScale;
+                
+                applyBoundaries();
+                updateTransform();
+            }
+            
+            function resetView() {
+                scale = 1;
+                posX = (viewport.clientWidth - container.clientWidth * scale) / 2;
+                posY = (viewport.clientHeight - container.clientHeight * scale) / 2;
+                velocityX = 0;
+                velocityY = 0;
+                updateTransform();
+            }
+            
+            // Touch handlers for pinch zoom
+            let initialDistance = null;
+            
+            function handleTouchStart(e) {
+                if (e.touches.length === 2) {
+                    initialDistance = getDistance(
+                        e.touches[0].clientX, e.touches[0].clientY,
+                        e.touches[1].clientX, e.touches[1].clientY
+                    );
+                    cancelAnimationFrame(animationId);
+                } else if (e.touches.length === 1) {
+                    startDrag(e);
+                }
+            }
+            
+            function handleTouchMove(e) {
+                if (e.touches.length === 2) {
+                    const distance = getDistance(
+                        e.touches[0].clientX, e.touches[0].clientY,
+                        e.touches[1].clientX, e.touches[1].clientY
+                    );
+                    
+                    if (initialDistance !== null) {
+                        const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                        const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                        const zoomFactor = distance / initialDistance;
+                        
+                        // Smooth the zoom factor to prevent jitter
+                        const smoothedZoomFactor = 1 + (zoomFactor - 1) * 0.2;
+                        
+                        zoom(smoothedZoomFactor, centerX, centerY);
+                    }
+                    
+                    initialDistance = distance;
+                    e.preventDefault();
+                } else if (e.touches.length === 1) {
+                    drag(e);
+                }
+            }
+            
+            function handleTouchEnd() {
+                initialDistance = null;
+                endDrag();
+            }
+            
+            function getDistance(x1, y1, x2, y2) {
+                return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                applyBoundaries();
+                updateTransform();
+            });
+        });
+    </script>
+</body>
+</html>
