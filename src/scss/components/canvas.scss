@@ -13,6 +13,7 @@
         cursor: grab;
         user-select: none;
         will-change: transform;
+        transform: translate(-1088px, -568.5px)
     }
     &__lineX {
         position: fixed;
@@ -80,10 +81,14 @@
         left: 0;
         pointer-events: none;
         &_linkoln {
+            border: 1px solid transparent;
+            animation: linkoln 15s ease-in-out infinite;
             transform: translate(836px, 940px);
         }
         &_bork {
-            transform: translate(2210px, 174px);
+            border: 1px solid transparent;
+            animation: bork 20s ease-in-out infinite;
+            transform: translate(2160px, 174px);
         }
         &_news {
             transform: translate(494px, 149px);
@@ -93,11 +98,15 @@
         }
         &_card2 {
             transform: translate(726px, 725px);
+            border: 1px solid transparent;
+            animation: card 15s ease-in-out infinite;
         }
         &_card3 {
             transform: translate(3425px, 2100px) rotate(-30deg);
         }
         &_friends {
+            border: 1px solid transparent;
+            animation: friends 20s ease-in-out infinite;
             transform: translate(1920px, 470px);
         }
         &_folder {
@@ -105,6 +114,8 @@
         }
         &_fingertouch {
             transform: translate(283px, 917px);
+            border: 1px solid transparent;
+            animation: fingertouch 15s ease-in-out infinite;
         }
         &_main {
             transform: translate(calc(2048px - 50%), calc(1024px - 50%));
@@ -161,17 +172,22 @@
             object-fit: contain;
         }
         &_cursor1 {
-            animation: cursor1 6s ease-in-out infinite;
+            animation: cursor1 15s ease-in-out infinite;
             z-index: 3;
         }
         &_cursor2 {
             transform: translate(2450px, 1270px);
-            animation: cursor2 7s .5s ease-in-out infinite;
+            animation: cursor2 20s ease-in-out infinite;
             z-index: 3;
         }
         &_cursor3 {
             transform: translate(2000px, 1560px);
-            animation: cursor3 8s 1s ease-in-out infinite;
+            animation: cursor3 80s ease-in-out infinite;
+            z-index: 3;
+        }
+        &_cursor4 {
+            transform: translate(1000px, 1560px);
+            animation: cursor4 15s ease-in-out infinite;
             z-index: 3;
         }
     }
@@ -209,6 +225,8 @@
     &__title {
         margin-top: 24px;
         margin-bottom: 0;
+        font-weight: 500;
+        animation: fadeInY .8s ease-out .5s both;
         b {
             color: #2C5BFF;
         }
@@ -219,11 +237,19 @@
         font-weight: 300;
         color: #000000E5;
         line-height: 1.2;
+        animation: fadeInY .8s ease-out .8s both;
     }
     &__text {
         font-weight: 300;
         color: #000000CC;
         line-height: 1.2;
+        
+        &:nth-child(4) {
+            animation: fadeInY .8s ease-out 1.5s both;
+        }
+        &:nth-child(6) {
+            animation: fadeInY .8s ease-out 2.5s both;
+        }
     }
     &__labels {
         display: flex;
@@ -239,6 +265,15 @@
         padding: 8px 12px;
         border: 1px solid #F8F8F8;
         border-radius: 16px;
+        &:nth-child(1) {
+            animation: fadeInY .8s ease-out 1.8s both;
+        }
+        &:nth-child(2) {
+            animation: fadeInY .8s ease-out 2s both;
+        }
+        &:nth-child(3) {
+            animation: fadeInY .8s ease-out 2.2s both;
+        }
     }
     &__label-icon {
         width: 40px;
@@ -248,6 +283,7 @@
     &__btn {
         pointer-events: all;
         margin-top: 36px;
+        animation: fadeInY .8s ease-out 2.8s both;
     }
     &__emoji {
         position: absolute;
@@ -328,6 +364,13 @@
             }
         }
     }
+    &_purple {
+        .cursor {
+            &__text {
+                background-color: #7A4FFA;
+            }
+        }
+    }
 }
 
 .menu {
@@ -391,7 +434,7 @@
     width: 500px;
     display: flex;
     flex-direction: column;
-    
+    animation: fadeIn .8s ease-out .5s both;
     &__wrapper {
         display: flex;
         height: 100%;
@@ -487,6 +530,7 @@
     flex-direction: column;
     gap: 24px;
     width: 555px;
+    animation: fadeIn .8s ease-out .5s both;
     &__top {
         background: #00000061;
         display: flex;
@@ -570,6 +614,8 @@
 .conditions {
     display: flex;
     flex-direction: column;
+    border: 1px solid transparent;
+    animation: fadeIn .8s ease-out .5s both;
     &__top {
         display: flex;
         gap: 60px;
@@ -621,6 +667,159 @@
     &__btn {
         margin-top: 20px;
     }
+}
+
+.mail {
+    width: fit-content;
+    &__img {
+    }
+    &__line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        background-color: white;
+        width: 300px;
+        z-index: 3;
+    }
+    &__line1 {
+        top: 30px;
+        left: 20px;
+        transform: rotate(-20deg);
+
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear both;
+    }
+    &__line2 {
+        top: 60px;
+        left: 30px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 1s both;
+
+    }
+    &__line3 {
+        top: 80px;
+        left: 35px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 2s both;
+    }
+    &__line4 {
+        top: 100px;
+        left: 40px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 3s both;
+    }
+    &__line5 {
+        top: 130px;
+        left: 50px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 4s both;
+    }
+    &__line6 {
+        top: 147px;
+        left: 60px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 5s both;
+    }
+    &__line7 {
+        top: 163px;
+        left: 70px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 6s both;
+    }
+    &__line8 {
+        top: 181px;
+        left: 78px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 7s both;
+    }
+    &__line9 {
+        top: 215px;
+        left: 78px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 8s both;
+    }
+    &__line10 {
+        top: 251px;
+        left: 98px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 9s both;
+    }
+    &__line11 {
+        top: 271px;
+        left: 98px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 10s both;
+    }
+    &__line12 {
+        top: 321px;
+        left: 118px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 11s both;
+    }
+    &__line13 {
+        top: 336px;
+        left: 128px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 12s both;
+    }
+    &__line14 {
+        top: 351px;
+        left: 128px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 13s both;
+    }
+    &__line15 {
+        top: 321px;
+        left: 328px;
+        width: 70px;
+        height: 70px;
+        transform: rotate(-20deg);
+        transform-origin: 100% 0;
+        animation: mailLine 1s linear 14s both;
+    }
+}
+
+.sky-blocks {
+    &__elems {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100%;
+        overflow: hidden;
+        user-select: none;
+        width: 100%;
+    }
+    &__elem {
+        position: absolute;
+        padding: 12px 20px;
+        border-radius: 100px;
+        color: #535353;
+        white-space: nowrap;
+        cursor: grab;
+        font-size: 16px;
+        font-weight: 500;
+        background: white;
+        box-shadow: -2px 2px 8px 0px #00000026;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
 }
 
 @include media($mobile) { 

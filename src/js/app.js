@@ -52,6 +52,9 @@ function initDgagCanvas() {
     
     // Functions
     function startDrag(e) {
+        if($(e.target).hasClass('sky-blocks__elem')) {
+            return;
+        }
         isDragging = true;
         draggable.style.cursor = 'grabbing';
         
@@ -293,9 +296,142 @@ function initPayTabs() {
     $('.pay__btn').get(0).click();
 }
 
+function initSkyBlocks() {
+    let $this = document.querySelector("#sky-blocks");
+    if (!$this) {
+        return;
+    }
+    let Engine = Matter.Engine
+      , Render = Matter.Render
+      , Runner = Matter.Runner
+      , Bodies = Matter.Bodies
+      , World = Matter.World
+      , Mouse = Matter.Mouse
+      , MouseConstraint = Matter.MouseConstraint;
+
+    const params = {
+        isStatic: true,
+        restitution: 0.01,
+        render: {
+            fillStyle: "tranparent",
+        }
+    };
+    const canvasSize = {
+        width: $this.clientWidth,
+        height: $this.clientHeight
+    };
+    const engine = Engine.create({});
+    const render = Render.create({
+        element: $this,
+        engine: engine,
+        options: {
+            ...canvasSize,
+            background: "transparent",
+            wireframes: false
+        }
+    });
+    const floor = Bodies.rectangle(canvasSize.width / 2, canvasSize.height, canvasSize.width, 20, params);
+    const wall1 = Bodies.rectangle(0, canvasSize.height / 2, 20, canvasSize.height, params);
+    const wall2 = Bodies.rectangle(canvasSize.width, canvasSize.height / 2, 20, canvasSize.height, params);
+    const top = Bodies.rectangle(canvasSize.width / 2, 0, canvasSize.width, 20, params);
+    const featureItems = $this.querySelectorAll(".sky-blocks__elem");
+    const featureBodies = [...featureItems].map( (elemRef) => {
+        const width = elemRef.offsetWidth;
+        const height = elemRef.offsetHeight;
+        elemRef.style.opacity = 1
+        const randomX = Math.random() * (canvasSize.width - width) + width / 2;
+        const randomY = 100;
+        let item = Bodies.rectangle(randomX, randomY, width, height, {
+            restitution: 0.01,
+            render: {
+                fillStyle: "transparent"
+            },
+        });
+        return {
+            body: item,
+            elem: elemRef,
+            render() {
+                const {x, y} = this.body.position;
+                this.elem.style.top = `${Math.abs(y - 20)}px`;
+                this.elem.style.left = `${x - width / 2}px`;
+                this.elem.style.transform = `rotate(${this.body.angle}rad)`;
+            }
+        };
+    }
+    );
+    const mouse = Mouse.create($this);
+    const mouseConstraint = MouseConstraint.create(engine, {
+        mouse,
+        constraint: {
+            stiffness: 0.1,
+            damping: 0.1,
+            render: {
+                visible: false
+            }
+        }
+    });
+    mouse.element.removeEventListener("wheel", mouse.mousewheel);
+    mouse.element.removeEventListener("DOMMouseScroll", mouse.mousewheel);
+    mouseConstraint.mouse.element.removeEventListener("wheel", mouseConstraint.mouse.mousewheel);
+    mouseConstraint.mouse.element.removeEventListener("DOMMouseScroll", mouseConstraint.mouse.mousewheel);
+    if ($(window).innerWidth() < 1200) {
+        mouseConstraint.mouse.element.removeEventListener('touchstart', mouseConstraint.mouse.mousedown);
+        mouseConstraint.mouse.element.removeEventListener('touchmove', mouseConstraint.mouse.mousemove);
+        mouseConstraint.mouse.element.removeEventListener('touchend', mouseConstraint.mouse.mouseup);
+        mouseConstraint.mouse.element.addEventListener('touchstart', mouseConstraint.mouse.mousedown, {
+            passive: true
+        });
+        mouseConstraint.mouse.element.addEventListener('touchmove', (e) => {
+            if (mouseConstraint.body) {
+                mouseConstraint.mouse.mousemove(e);
+            }
+        }
+        );
+        mouseConstraint.mouse.element.addEventListener('touchend', (e) => {
+            if (mouseConstraint.body) {
+                mouseConstraint.mouse.mouseup(e);
+            }
+        }
+        );
+    }
+    engine.positionIterations = 12;
+    engine.velocityIterations = 10;
+    engine.constraintIterations = 8;
+    World.add(engine.world, [floor, ...featureBodies.map( (box) => box.body), wall1, wall2, top, mouseConstraint]);
+    render.mouse = mouse;
+    Runner.run(engine);
+    Render.run(render);
+    (function rerender() {
+        featureBodies.forEach( (element) => {
+            element.render();
+        }
+        );
+        Engine.update(engine, 12);
+        requestAnimationFrame(rerender);
+    }
+    )();
+    Matter.Events.on(engine, 'beforeUpdate', () => {
+        engine.world.bodies.forEach(body => {
+            const maxSpeed = 5;
+            const velocity = body.velocity;
+            const speed = Math.sqrt(velocity.x * 2 + velocity.y * 2);
+            if (speed > maxSpeed) {
+                Matter.Body.setVelocity(body, {
+                    x: (velocity.x / speed) * maxSpeed,
+                    y: (velocity.y / speed) * maxSpeed,
+                });
+            }
+        }
+        );
+    }
+    );
+}
+
 $( document ).ready(function() {
     initDgagCanvas();
     initRuler();
     initForWhoTabs();
     initPayTabs();
+    initSkyBlocks();
+    
 });
